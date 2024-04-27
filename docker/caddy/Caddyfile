@@ -1,0 +1,7 @@
+ci4.local {
+    root * /var/www/app/public
+    encode gzip zstd
+    file_server
+
+    php_fastcgi ci-php:9000
+}

@@ -1,0 +1,42 @@
+version: "3.9"
+
+networks:
+  ci4-local:
+    name: ci4-local
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 22.0.0.1/24
+
+volumes:
+  ci-caddy-config:
+    name: ci-caddy-config
+  ci-caddy-data:
+    name: ci-caddy-data
+
+services:
+  ci-php:
+    image: devilbox/php-fpm:8.2-work
+    container_name: ci-php
+    expose:
+      - 9000
+    volumes:
+      - ./app:/var/www/app
+    working_dir: /var/www/app
+    networks:
+      - ci4-local
+
+  ci-server:
+    image: caddy/caddy:2.7-alpine
+    container_name: ci-server
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ci-caddy-config:/config
+      - ci-caddy-data:/data
+      - ./app:/var/www/app
+      - ./docker/caddy/:/etc/caddy/
+    networks:
+      - ci4-local
